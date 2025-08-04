@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Path Recommender</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .recommendations {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .course {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .course:last-child {
+            border-bottom: none;
+        }
+        .error {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Learning Path Recommender</h1>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="current_skills">Your Current Skills (comma separated):</label>
+            <input type="text" id="current_skills" name="current_skills" 
+                   value="{{ form_data.current_skills if form_data }}" 
+                   placeholder="e.g. python,basic_math">
+        </div>
+        
+        <div class="form-group">
+            <label for="target_career">Target Career:</label>
+            <select id="target_career" name="target_career">
+                <option value="">Select a career</option>
+                <option value="data_scientist" {% if form_data and form_data.target_career == 'data_scientist' %}selected{% endif %}>Data Scientist</option>
+                <option value="web_developer" {% if form_data and form_data.target_career == 'web_developer' %}selected{% endif %}>Web Developer</option>
+                <option value="cybersecurity" {% if form_data and form_data.target_career == 'cybersecurity' %}selected{% endif %}>Cybersecurity</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="current_level">Your Current Level:</label>
+            <select id="current_level" name="current_level">
+                <option value="">Select your level</option>
+                <option value="beginner" {% if form_data and form_data.current_level == 'beginner' %}selected{% endif %}>Beginner</option>
+                <option value="intermediate" {% if form_data and form_data.current_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                <option value="advanced" {% if form_data and form_data.current_level == 'advanced' %}selected{% endif %}>Advanced</option>
+            </select>
+        </div>
+        
+        <button type="submit">Get Recommendations</button>
+    </form>
+    
+    {% if recommendations %}
+    <div class="recommendations">
+        {% if recommendations.error %}
+            <p class="error">{{ recommendations.error }}</p>
+        {% elif recommendations.message %}
+            <p>{{ recommendations.message }}</p>
+        {% else %}
+            <h2>Your Learning Path for {{ recommendations.career }}</h2>
+            
+            {% for course in recommendations.learning_path %}
+            <div class="course">
+                <h3>{{ course.course }}</h3>
+                <p><strong>Skills covered:</strong> {{ course.skills_covered }}</p>
+                <p><strong>Recommended resources:</strong></p>
+                <ul>
+                    {% for resource in course.resources %}
+                    <li>{{ resource }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    {% endif %}
+</body>
+</html>
